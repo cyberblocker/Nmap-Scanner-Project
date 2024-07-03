@@ -1,0 +1,110 @@
+import os
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
+def run_version_scan(ip):
+    command = f"nmap -sV {ip}/20"
+    os.system(command)
+    return f"Executed: {command}"
+def run_ping_scan(ip):
+    command = f"nmap -sn {ip}/20"
+    os.system(command)
+    return f"Executed: {command}"
+def run_port_scan(ip, ports):
+    command = f"nmap -p{ports} {ip}/20"
+    os.system(command)
+    return f"Executed: {command}"
+def get_valid_input(prompt, options):
+    while True:
+        choice = input(prompt).strip()
+        if choice in options:
+            return choice
+        print(f"Invalid input. Please choose from {options}.")
+def get_valid_ip():
+    ip = input("Enter an IP address to add to the network: ").strip()
+    if len(ip.split('.')) == 4 and all(part.isdigit() and 0 <= int(part) <= 255 for part in ip.split('.')):
+        return ip
+    return None
+def get_valid_port(prompt):
+    while True:
+        try:
+            port = int(input(prompt).strip())
+            if 1 <= port <= 65535:
+                return port
+            else:
+                print("Invalid port. Please enter a number between 1 and 65535.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+def simulate_ping_scan():
+    ip_list = []
+    invalid_attempts = 0
+    max_attempts = 2
+    while True:
+        ip = get_valid_ip()
+        if ip:
+            scan_result = run_ping_scan(ip)
+            print(scan_result)
+            ip_list.append(ip)
+        else:
+            print("Invalid IP address format.")
+            invalid_attempts += 1
+            if invalid_attempts >= max_attempts:
+                print("Too many invalid attempts. Returning to main menu.")
+                return []
+        if input("Add another IP? (yes/no): ").strip().lower() != 'yes':
+            break
+    if not ip_list:
+        print("No valid IP addresses entered. Returning to main menu.")
+        return []
+    return ip_list
+def port_scan(ip_list):
+    print("Pick a range of ports:")
+    start_port = get_valid_port("Enter the starting port (1-65535): ")
+    while True:
+        end_port = get_valid_port("Enter the ending port (must be greater than starting port and within 1-65535): ")
+        if end_port > start_port:
+            break
+        print("Ending port must be greater than starting port. Please try again.")
+    ports = f"{start_port}-{end_port}"
+    for ip in ip_list:
+        clear_screen()
+        print(f"Running NMAP Port scan on IP Address {ip} (Ports: {ports})")
+        scan_result = run_port_scan(ip, ports)
+        print(scan_result)
+    input("Press Enter to return to main menu...")
+def version_scan(ip_list):
+    for ip in ip_list:
+        clear_screen()
+        print(f"Running NMAP Version scan on IP Address {ip}")
+        scan_result = run_version_scan(ip)
+        print(scan_result)
+    input("Press Enter to return to main menu...")
+def main_menu():
+    ip_list = []
+    while True:
+        clear_screen()
+        print("Main Menu")
+        print("1. Ping Scan VM Network")
+        print("2. Port Scan")
+        print("3. Version Scan")
+        print("4. Exit")
+        choice = get_valid_input("Choose an option: ", ["1", "2", "3", "4"])
+        clear_screen()
+        if choice == "1":
+            ip_list = simulate_ping_scan()
+        elif choice == "2":
+            if ip_list:
+                port_scan(ip_list)
+            else:
+                print("No IP addresses available. Please perform a ping scan first.")
+                input("Press Enter to return to main menu...")
+        elif choice == "3":
+            if ip_list:
+                version_scan(ip_list)
+            else:
+                print("No IP addresses available. Please perform a ping scan first.")
+                input("Press Enter to return to main menu...")
+        elif choice == "4":
+            break
+
+if __name__ == "__main__":
+    main_menu()
