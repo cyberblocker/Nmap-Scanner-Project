@@ -16,17 +16,21 @@ The tool enumerates a /20 subnet based on a user-provided IP address. It uses a 
   - Nmap installed and configured
 
 **Usage**
+
 **Input Format**
   - Enter a valid IPv4 address (e.g., 192.168.1.1)
   - Invalid formats will be rejected by the program
+    
 **1. Ping Scan**
   - Performs host discovery across a /20 subnet using Nmap
   - Identifies active IP addresses without scanning ports
   - May take some time depending on network size
+    
 **2. Port Scan**
   - Scans open ports on discovered IP addresses
   - Requires a user-defined port range (start port must be lower than end port)
   - Helps identify exposed services and potential attack surfaces
+    
 **3. Version Scan**
   - Uses nmap -sV to detect service versions on open ports
   - Iterates through discovered IPs and scans each host
